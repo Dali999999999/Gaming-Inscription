@@ -299,6 +299,8 @@
              <div class="year-info">
                 Année : <strong>2ème Année</strong> (Obligatoire)
              </div>
+             <!-- Champ caché ajouté si nécessaire, sinon géré en JS -->
+             <!-- <input type="hidden" name="year" value="2ème Année"> -->
 
             <button type="submit" id="submitButton" disabled>S'inscrire</button>
         </form>
@@ -315,8 +317,8 @@
         const submitButton = document.getElementById('submitButton');
         const messageArea = document.getElementById('messageArea');
 
-        // --- !!! IMPORTANT: Remplacez ceci par l'URL de votre Web App Google Apps Script déployée ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQgcsusjQVVz1AVXubh3GauJMp7N4p3xxEcrnaVby5lLvI5w5FFz7O2mXLA1P2-91LFg/exec';
+        // --- !!! IMPORTANT: Gardez VOTRE URL ici ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMoDPbQ0URjWTcUAgV0T0TeMO-Jvxq73DMStWByYMT2OLxHrf-Ddf0tMWZHWMcr3OZ/exec';
         // -------------------------------------------------------------------------------------
 
         const requiredFields = [firstNameInput, lastNameInput, majorSelect, gameSelect];
@@ -336,26 +338,25 @@
             messageArea.classList.add(type); // 'success', 'error', 'info'
             messageArea.textContent = text;
             messageArea.style.display = 'block';
+             // Fait défiler pour voir le message
+            messageArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function setLoading(isLoading) {
             if (isLoading) {
                 submitButton.disabled = true;
-                // Garder le texte original et ajouter un spinner
                 submitButton.innerHTML = `Inscription en cours <span class="loader"></span>`;
             } else {
-                // Restaurer le texte original
-                 submitButton.innerHTML = `S'inscrire`;
-                // Réévaluer la validité pour réactiver/désactiver correctement
-                checkFormValidity();
+                submitButton.innerHTML = `S'inscrire`;
+                checkFormValidity(); // Réévaluer si le bouton doit être réactivé
             }
         }
 
-
         form.addEventListener('submit', function(event) {
             event.preventDefault(); // Empêche la soumission HTML standard
+            console.log("Soumission interceptée...");
 
-            if (SCRIPT_URL === 'VOTRE_URL_APPS_SCRIPT_ICI') {
+            if (SCRIPT_URL === 'VOTRE_URL_APPS_SCRIPT_ICI' || !SCRIPT_URL) {
                  showMessage('error', "Erreur : L'URL du script d'enregistrement n'est pas configurée.");
                  return;
             }
@@ -363,81 +364,87 @@
             setLoading(true);
             messageArea.style.display = 'none'; // Cacher les anciens messages
 
-            const formData = {
-                timestamp: new Date().toISOString(), // Ajouté côté client, mais le script peut aussi le faire
-                firstName: firstNameInput.value.trim(),
-                lastName: lastNameInput.value.trim(),
-                major: majorSelect.value,
-                year: "2ème Année", // Année fixe
-                game: gameSelect.value
-            };
+            // *** CHANGEMENT ICI : Utiliser FormData ***
+            const formData = new FormData(form);
+            // Ajouter le champ 'year' manuellement car il n'est pas un input standard
+            formData.append('year', '2ème Année');
+            // Optionnel: ajouter un timestamp client, mais le serveur le fera aussi
+            // formData.append('clientTimestamp', new Date().toISOString());
 
+            console.log("FormData préparé pour l'envoi.");
+            // Vous pouvez décommenter ceci pour voir les paires clé/valeur
+            // for (let [key, value] of formData.entries()) {
+            //     console.log(`${key}: ${value}`);
+            // }
+
+            // *** CHANGEMENT ICI : Options Fetch modifiées ***
             fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'cors', // Important pour interagir avec Apps Script
-                cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                 // Le redirect: 'follow' est souvent nécessaire avec Apps Script
-                 // redirect: 'follow', // Attention: peut causer des soucis si Apps Script redirige mal
-                body: JSON.stringify(formData)
+                // PAS D'EN-TETE Content-Type, le navigateur le mettra (multipart/form-data)
+                body: formData, // Envoyer l'objet FormData directement
+                mode: 'cors',   // Garder cors
+                cache: 'no-cache', // Garder no-cache
+                redirect: 'follow' // Garder follow, souvent nécessaire avec Apps Script
             })
-            // Gérer la réponse brute d'abord pour mieux débugger
             .then(response => {
-                if (!response.ok) {
-                    // Essayer de lire le corps de la réponse même si ce n'est pas ok
-                    return response.text().then(text => {
-                       throw new Error(`Erreur réseau ou serveur: ${response.status} ${response.statusText} - ${text}`);
-                    });
-                }
-                // Apps Script renvoie souvent du texte (même si on demande JSON), donc on lit en texte d'abord
+                console.log(`Réponse reçue du serveur. Statut: ${response.status}`);
+                 if (!response.ok) {
+                     // Essayer de lire le corps de la réponse même si ce n'est pas ok
+                     return response.text().then(text => {
+                         console.error("Détail erreur serveur:", text);
+                         throw new Error(`Erreur réseau ou serveur: ${response.status} ${response.statusText} - ${text || '(pas de détail)'}`);
+                     });
+                 }
+                 // Toujours lire en texte d'abord, car Apps Script peut être capricieux
                  return response.text();
             })
-             // Essayer de parser le texte en JSON
-            .then(text => {
-                try {
-                    return JSON.parse(text);
-                } catch(e) {
-                    // Si le parsing JSON échoue, loguer le texte reçu et lancer une erreur
-                    console.error("Réponse non JSON reçue:", text);
-                    throw new Error("Réponse inattendue du serveur.");
-                }
-            })
-            // Traiter la réponse JSON
-            .then(data => {
-                if (data.result === 'success') {
-                    showMessage('success', data.message || 'Inscription réussie ! Prépare tes pouces ! 🔥');
-                    form.reset(); // Vider le formulaire
-                    // Désactiver à nouveau après succès + reset
-                    submitButton.disabled = true;
-                } else if (data.result === 'duplicate') {
-                    showMessage('info', data.message || 'Tu es déjà inscrit pour ce tournoi. Pas besoin de forcer 😉.');
-                } else {
-                     // Erreur applicative renvoyée par le script
-                    showMessage('error', data.message || 'Une erreur est survenue lors de l\'inscription.');
-                    console.error('Erreur applicative:', data);
-                }
-            })
+             .then(text => {
+                 console.log("Réponse brute du serveur (texte):", text);
+                 // Essayer de parser en JSON, car notre script *devrait* renvoyer du JSON
+                 try {
+                     const data = JSON.parse(text);
+                     console.log("Réponse parsée en JSON:", data);
+                     // Traiter la réponse JSON
+                     if (data.result === 'success') {
+                         showMessage('success', data.message || 'Inscription réussie ! Prépare tes pouces ! 🔥');
+                         form.reset(); // Vider le formulaire
+                         submitButton.disabled = true; // Désactiver après succès + reset
+                     } else if (data.result === 'duplicate') {
+                         showMessage('info', data.message || 'Tu es déjà inscrit pour ce tournoi. Pas besoin de forcer 😉.');
+                     } else {
+                         // Erreur applicative renvoyée par le script
+                         showMessage('error', data.message || 'Une erreur est survenue lors de l\'inscription.');
+                         console.error('Erreur applicative:', data);
+                     }
+                 } catch (e) {
+                     // Si le parsing JSON échoue, c'est probablement une erreur inattendue du script ou de Google
+                     console.error("Réponse non JSON reçue (ou erreur parsing):", text, e);
+                     // Afficher le texte brut si possible, sinon un message générique
+                     const errorMsg = text.trim().startsWith('{') ? "Réponse invalide du serveur." : text.trim();
+                     throw new Error("Réponse inattendue du serveur : " + (errorMsg.length < 100 ? errorMsg : "(voir console)"));
+                 }
+             })
             .catch(error => {
                 console.error('Erreur lors de la soumission:', error);
                  showMessage('error', `Impossible de contacter le serveur d'inscription. Vérifie ta connexion ou réessaie plus tard. (${error.message})`);
             })
             .finally(() => {
-                // Assurer que le chargement s'arrête même en cas d'erreur
-                // Ne pas appeler setLoading(false) si le formulaire a été reset (bouton doit rester désactivé)
-                if (messageArea.classList.contains('success')) {
-                   // Le formulaire a été reset, le bouton doit rester désactivé
-                    submitButton.innerHTML = `S'inscrire`; // Reset text, keep disabled state
-                } else {
-                    // Sinon (erreur ou doublon), réactiver le bouton si le formulaire est valide
+                console.log("Exécution du finally.");
+                // Ne réactiver le bouton que si ce n'était pas un succès
+                if (!messageArea.classList.contains('success')) {
                     setLoading(false);
+                } else {
+                    // S'assurer que le spinner est parti même après succès
+                     submitButton.innerHTML = `S'inscrire`;
                 }
             });
         });
 
-        // Vérifier l'état initial au chargement (au cas où le navigateur pré-remplit)
-        checkFormValidity();
+        // Vérifier l'état initial au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM chargé. Vérification validité initiale.");
+            checkFormValidity();
+        });
 
     </script>
 
