@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription Tournoi Gaming</title>
+    <style>
+        /* --- Google Font --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* --- Reset & Base Styles --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #e4e4e4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* --- Container --- */
+        .container {
+            background-color: rgba(26, 26, 46, 0.85); /* Slightly transparent */
+            padding: 35px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Header --- */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #e94560; /* Accent color */
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 2.2em; /* Responsive font size */
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+
+         .header .subtitle {
+            font-size: 0.95em;
+            color: #a7a9be;
+            line-height: 1.5;
+            max-width: 90%;
+            margin: 0 auto;
+         }
+
+        /* --- Form Styling --- */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative; /* For potential icon placement */
+            animation: slideInUp 0.6s ease-out forwards;
+            opacity: 0; /* Start hidden for animation */
+        }
+
+        /* Staggered animation delay */
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #c0c2d3;
+            font-size: 0.9em;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #e4e4e4;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            appearance: none; /* Remove default dropdown arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        /* Custom dropdown arrow */
+        select {
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23c0c2d3" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 40px; /* Make space for arrow */
+        }
+
+        select option {
+            background-color: #16213e;
+            color: #e4e4e4;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #e94560;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+        }
+
+        /* Year Info */
+        .year-info {
+             font-size: 0.9em;
+             color: #a7a9be;
+             margin-top: 10px;
+             padding: 10px;
+             background-color: rgba(255, 255, 255, 0.05);
+             border-radius: 5px;
+             text-align: center;
+        }
+
+        /* --- Submit Button --- */
+        #submitButton {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #e94560, #c62a88);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+            position: relative;
+            overflow: hidden; /* For loading animation */
+        }
+
+        #submitButton:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.5);
+        }
+
+        #submitButton:active:not(:disabled) {
+             transform: translateY(-1px);
+             box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        #submitButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #555;
+            box-shadow: none;
+        }
+
+         /* Loading Spinner inside Button */
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px; /* Adjust as needed */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Message Area --- */
+        #messageArea {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none; /* Hidden by default */
+            animation: fadeInMessage 0.5s ease-out;
+        }
+
+        @keyframes fadeInMessage {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #messageArea.success {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        #messageArea.error {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        #messageArea.info {
+             background-color: rgba(52, 152, 219, 0.2);
+             border: 1px solid #3498db;
+             color: #3498db;
+        }
+
+        /* --- Responsiveness --- */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+            label {
+                font-size: 0.85em;
+            }
+            input[type="text"], select, #submitButton {
+                padding: 10px 12px;
+                font-size: 0.95em;
+            }
+             #submitButton {
+                 font-size: 1em;
+                 padding: 12px;
+            }
+            select {
+                background-position: right 10px center;
+                 padding-right: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Tournoi Gaming</h1>
+            <p class="subtitle">Yo ! Prêt à montrer ce que tu vaux ? Inscris-toi ici si t'as le niveau. Cash prize à la clé ! 🏆</p>
+        </div>
+
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="firstName">Prénom</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Nom</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="major">Filière</label>
+                <select id="major" name="major" required>
+                    <option value="">-- Choisir ta filière --</option>
+                    <option value="RGL">RGL</option>
+                    <option value="RMS">RMS</option>
+                </select>
+            </div>
+
+             <div class="form-group">
+                <label for="game">Jeu souhaité</label>
+                <select id="game" name="game" required>
+                    <option value="">-- Choisir ton arène --</option>
+                    <option value="NS4">NS4 (Naruto Storm 4)</option>
+                    <option value="TEKKEN 7">TEKKEN 7</option>
+                    <option value="STREET FIGHTER">STREET FIGHTER</option>
+                    <option value="FC25">FC25</option>
+                </select>
+            </div>
+
+             <div class="year-info">
+                Année : <strong>2ème Année</strong> (Obligatoire)
+             </div>
+
+            <button type="submit" id="submitButton" disabled>S'inscrire</button>
+        </form>
+
+        <div id="messageArea"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('registrationForm');
+        const firstNameInput = document.getElementById('firstName');
+        const lastNameInput = document.getElementById('lastName');
+        const majorSelect = document.getElementById('major');
+        const gameSelect = document.getElementById('game');
+        const submitButton = document.getElementById('submitButton');
+        const messageArea = document.getElementById('messageArea');
+
+        // --- !!! IMPORTANT: Remplacez ceci par l'URL de votre Web App Google Apps Script déployée ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQgcsusjQVVz1AVXubh3GauJMp7N4p3xxEcrnaVby5lLvI5w5FFz7O2mXLA1P2-91LFg/exec';
+        // -------------------------------------------------------------------------------------
+
+        const requiredFields = [firstNameInput, lastNameInput, majorSelect, gameSelect];
+
+        function checkFormValidity() {
+            const allFilled = requiredFields.every(field => field.value.trim() !== '');
+            submitButton.disabled = !allFilled;
+        }
+
+        requiredFields.forEach(field => {
+            field.addEventListener('input', checkFormValidity);
+            field.addEventListener('change', checkFormValidity); // Pour les selects
+        });
+
+        function showMessage(type, text) {
+            messageArea.className = ''; // Reset classes
+            messageArea.classList.add(type); // 'success', 'error', 'info'
+            messageArea.textContent = text;
+            messageArea.style.display = 'block';
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitButton.disabled = true;
+                // Garder le texte original et ajouter un spinner
+                submitButton.innerHTML = `Inscription en cours <span class="loader"></span>`;
+            } else {
+                // Restaurer le texte original
+                 submitButton.innerHTML = `S'inscrire`;
+                // Réévaluer la validité pour réactiver/désactiver correctement
+                checkFormValidity();
+            }
+        }
+
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Empêche la soumission HTML standard
+
+            if (SCRIPT_URL === 'VOTRE_URL_APPS_SCRIPT_ICI') {
+                 showMessage('error', "Erreur : L'URL du script d'enregistrement n'est pas configurée.");
+                 return;
+            }
+
+            setLoading(true);
+            messageArea.style.display = 'none'; // Cacher les anciens messages
+
+            const formData = {
+                timestamp: new Date().toISOString(), // Ajouté côté client, mais le script peut aussi le faire
+                firstName: firstNameInput.value.trim(),
+                lastName: lastNameInput.value.trim(),
+                major: majorSelect.value,
+                year: "2ème Année", // Année fixe
+                game: gameSelect.value
+            };
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors', // Important pour interagir avec Apps Script
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                 // Le redirect: 'follow' est souvent nécessaire avec Apps Script
+                 // redirect: 'follow', // Attention: peut causer des soucis si Apps Script redirige mal
+                body: JSON.stringify(formData)
+            })
+            // Gérer la réponse brute d'abord pour mieux débugger
+            .then(response => {
+                if (!response.ok) {
+                    // Essayer de lire le corps de la réponse même si ce n'est pas ok
+                    return response.text().then(text => {
+                       throw new Error(`Erreur réseau ou serveur: ${response.status} ${response.statusText} - ${text}`);
+                    });
+                }
+                // Apps Script renvoie souvent du texte (même si on demande JSON), donc on lit en texte d'abord
+                 return response.text();
+            })
+             // Essayer de parser le texte en JSON
+            .then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch(e) {
+                    // Si le parsing JSON échoue, loguer le texte reçu et lancer une erreur
+                    console.error("Réponse non JSON reçue:", text);
+                    throw new Error("Réponse inattendue du serveur.");
+                }
+            })
+            // Traiter la réponse JSON
+            .then(data => {
+                if (data.result === 'success') {
+                    showMessage('success', data.message || 'Inscription réussie ! Prépare tes pouces ! 🔥');
+                    form.reset(); // Vider le formulaire
+                    // Désactiver à nouveau après succès + reset
+                    submitButton.disabled = true;
+                } else if (data.result === 'duplicate') {
+                    showMessage('info', data.message || 'Tu es déjà inscrit pour ce tournoi. Pas besoin de forcer 😉.');
+                } else {
+                     // Erreur applicative renvoyée par le script
+                    showMessage('error', data.message || 'Une erreur est survenue lors de l\'inscription.');
+                    console.error('Erreur applicative:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la soumission:', error);
+                 showMessage('error', `Impossible de contacter le serveur d'inscription. Vérifie ta connexion ou réessaie plus tard. (${error.message})`);
+            })
+            .finally(() => {
+                // Assurer que le chargement s'arrête même en cas d'erreur
+                // Ne pas appeler setLoading(false) si le formulaire a été reset (bouton doit rester désactivé)
+                if (messageArea.classList.contains('success')) {
+                   // Le formulaire a été reset, le bouton doit rester désactivé
+                    submitButton.innerHTML = `S'inscrire`; // Reset text, keep disabled state
+                } else {
+                    // Sinon (erreur ou doublon), réactiver le bouton si le formulaire est valide
+                    setLoading(false);
+                }
+            });
+        });
+
+        // Vérifier l'état initial au chargement (au cas où le navigateur pré-remplit)
+        checkFormValidity();
+
+    </script>
+
+</body>
+</html>
